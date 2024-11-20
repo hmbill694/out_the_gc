@@ -1,6 +1,7 @@
-import app/components/home
-import app/components/layout.{layout}
+import app/pages/home
 import app/web.{type Context}
+import gleam/list
+import gleam/option
 import lustre/element
 import wisp.{type Request, type Response}
 
@@ -10,8 +11,11 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
   case wisp.path_segments(req) {
     // Homepage
     [] -> {
-      [home.root()]
-      |> layout
+      let params = wisp.get_query(req)
+
+      let search_query = list.key_find(params, "search") |> option.from_result
+
+      home.home_page(home.HomePage([], search_query))
       |> element.to_document_string_builder
       |> wisp.html_response(200)
     }
